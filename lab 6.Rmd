@@ -65,3 +65,81 @@ There is no significant difference in ranks (often you'll see medians) between g
 Median scores for group 1 (M = 14) and group 2 (M = 12) did not differ significantly (Mann Whitney U test: U(df) = 86, p = 0.28)
 
 If you have gone through the work of choosing the appropriate type of work, then every other measure you put in your report should align with that. Don't report median and then say it's not significant
+
+write mwu$p.value tp view the value in the console 
+write up ?kruskal.test in the console to see what it is
+
+## Linear regression
+
+Simple linear regression (single dependent variable, a single independent variable)
+we are going to use penguin data to look at flipper length v body mass
+scatter plot `geom_point`
+
+add include = false to not include anything in this data `include = FALSE`
+
+```{r, include = FALSE}
+# make an exploratory plot of penguin body mass (y-axis) v flipper length (x - axis)
+
+ggplot(data = penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point() + geom_smooth(method = "lm")
+
+```
+Find a linear regression model using ordinatry least square describing the relationship between flipper length and body mass for these penguins.
+
+3 pieces:
+
+- What type of model? `lm()`
+- What is the relationship to model (DV ~ IV) (dependent variable as a function of the IV) dv is `body_mass_g` and IV is `flipper_length_mm`
+- Where is the data that's used to create this model `data = penguins`
+
+`lm()` feel free to `?lm()` in the console to understand what it is
+linear regression is y = mx+b
+
+How does body mass in grams change as a function of flipper length
+
+How to interpret the output - for every one mm inrease in flipper length to be associated with a 49.7 g increase in body mass. so the units of 49.7 is g/mm
+
+the coefficent intercept -5780.83 grams is what the body mass would be if the flipper length was zero. all models are wrong and extrapolation is risky. we would need to be realy clear so what is the range over which we expect this model to be useful?
+
+if i want to see the coefficients then type up `penguin_lm$coefficients` in the console
+an refer to specific elements within the vector by adding a number like `penguin_lm$coefficients[2]`
+
+```{r}
+penguin_lm <- lm(body_mass_g ~ flipper_length_mm, data = penguins)
+penguin_lm
+
+```
+## Broom package returns model outputs as tidy data frames
+
+right now penguin_lm is in our environment and it looks super messy
+broom will return it as a nice data frame
+
+from the broom package means `broom::tidy` but you can just use `tidy()`
+```{r}
+penguin_lm_tide <- tidy(penguin_lm)
+
+penguin_lm_tide
+
+broom::glance(penguin_lm) # gives us model wide fit of uncertainity, we will talk more about these things on wednesday and next week too
+```
+what if you want to report this model so it's reproducible? How to actually include model equation in a report? `equatiomatic` 
+
+this wil actually store a locteck version of the model's outputs
+
+```{r}
+extract_eq(model = penguin_lm, use_coefs = TRUE) # automatically updates data in your report for you!
+```
+
+These diagnostic plots help give us assumptions for when we start analyzing data for linear regressions
+
+What is heterosadasiticy - variance of the residuals is not constant over the course of the models.
+
+Residual - how diffeent are my actual observations from the trend line (what the model predicts those observation values should be)
+```{r}
+plot(penguin_lm)
+# first plot is how far does this point exisit from what the model would predict. are these points some what predictible spread around the line? in this case residuals are pretty evenly distributed around the predicted line
+## qq is the normality of the residiuals (each obs and the predition) so looking at this QQ it looks like those residuals are very close to normally distributed.
+# third plot I was not paying attention
+# last plot ahhhh something about data points not being included because it is not representative of the population in your study 
+```
+
