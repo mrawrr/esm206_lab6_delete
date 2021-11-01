@@ -1,0 +1,67 @@
+---
+title: "Lab 6"
+author: "Meghna Rao"
+date: "11/1/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(palmerpenguins)
+library(broom)
+library(equatiomatic)
+```
+
+## Example of a rank-based test
+
+rank based test give us an analogous tools to test parametric tests so ranks are being compared across groups  (see lecture notes in the google drive)
+
+We will make our own samples using a pseudorandom generator
+
+- here we are creating a track for these values to take. if all participants start at mile 1 to get random values. The sample values are still random enoough. `set.seed(1414)` to start creating a sample. call the sample `gp_1 <- sample.int()` and in the pararnethesis tell it was the max number is for the sample, the sample size `size = 15`, and we want it to sample with replacement `replace = TRUE`. This is now a random sample of values between 0 - 20 with resampling. Make two different sets 
+```{r}
+set.seed(1414)
+gp_1 <- sample.int(20, size = 15, replace = TRUE)
+
+set.seed(1424)
+gp_2 <- sample.int(30, size = 15, replace = TRUE)
+```
+
+Make a quick histogram for exploratory purposes
+
+```{r}
+hist(gp_1) # does not look like a normal distribution
+hist(gp_2) # looks more like a uniform distribution
+## sample sizes are small so we are not convinced that based on the sample size that central limit theorm applies. either way we will try a t-test
+```
+Run a t-test to see this
+```{r}
+t.test(gp_1, gp_2)
+```
+What is the p-value - if these samples were drawn from populations with the same mean (drawn from the same population), the prob of taking two random samples with means at least as different as th sample means we found by random chance (while taking into account spread and sample size) is 19.8% (write this in with inline code)
+
+Retain (fail to reject) the null hypothesis . >> there is no significant difference in means between group 1 and group 2
+
+Warning - people get weird about saying you "accept" the null hypothesis
+
+Now lets compare this outcome to a rank-based test
+this is an unpaired test where there is no one to one association between observations in each sample.
+So we are using the mann whitney U unpaired rank-based test
+
+## mann whitney U unpaired rank-based test
+
+we will use the `wilcox.test()` where the default is unpaired. so we will give it our two vectors. ignore the warning that comes up
+
+```{r}
+mwu <- wilcox.test(gp_1, gp_2)
+
+mwu
+```
+If these samples were drawn from populations with the same ranks (medians) the probability of finding 2 samples with ranks "at least as different" as those in our samples is 0.28
+
+There is no significant difference in ranks (often you'll see medians) between grop 1 and group (statistical summary)
+
+Median scores for group 1 (M = 14) and group 2 (M = 12) did not differ significantly (Mann Whitney U test: U(df) = 86, p = 0.28)
+
+If you have gone through the work of choosing the appropriate type of work, then every other measure you put in your report should align with that. Don't report median and then say it's not significant
